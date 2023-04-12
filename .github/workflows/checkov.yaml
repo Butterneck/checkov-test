@@ -12,18 +12,13 @@ jobs:
     name: checkov-action
     steps:
       - uses: actions/checkout@v3
-      # - uses: actions/setup-python@v4
-      #   with:
-      #     python-version: '3.9'
-      #     cache: 'pip' # caching pip dependencies
-      # - run: pip install -r infra/requirements.txt
 
       - name: cdk synth
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: 'synth'
           working_dir: 'infra'
-          # actions_comment: false
+          actions_comment: false
 
       - name: Run Checkov action
         id: checkov
