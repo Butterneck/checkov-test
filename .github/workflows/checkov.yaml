@@ -5,17 +5,23 @@ jobs:
     name: checkov-action
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-          cache: 'pip' # caching pip dependencies
-      - run: pip install -r infra/requirements.txt
+      # - uses: actions/setup-python@v4
+      #   with:
+      #     python-version: '3.9'
+      #     cache: 'pip' # caching pip dependencies
+      # - run: pip install -r infra/requirements.txt
 
       - name: cdk synth
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: 'synth'
           working_dir: 'infra'
+
+      - name: debug
+        run: ls -la
+
+      - name: debug
+        run: ls -la infra
 
       - name: Run Checkov action
         id: checkov
@@ -37,4 +43,4 @@ jobs:
           # config_file: path/this_file
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
-          use_enforcement_rules: true # optional - use enforcement rule configs from the platform
+          # use_enforcement_rules: true # optional - use enforcement rule configs from the platform
