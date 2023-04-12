@@ -1,27 +1,25 @@
-on: [push]
+on:
+  pull_request:
+    branches: [ "*" ]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
 jobs:
   checkov-job:
     runs-on: ubuntu-latest
     name: checkov-action
     steps:
       - uses: actions/checkout@v3
-      # - uses: actions/setup-python@v4
-      #   with:
-      #     python-version: '3.9'
-      #     cache: 'pip' # caching pip dependencies
-      # - run: pip install -r infra/requirements.txt
 
       - name: cdk synth
         uses: youyo/aws-cdk-github-actions@v2
         with:
           cdk_subcommand: 'synth'
           working_dir: 'infra'
-
-      - name: debug
-        run: ls -la
-
-      - name: debug
-        run: ls -la infra
+          actions_comment: false
 
       - name: Run Checkov action
         id: checkov
@@ -34,8 +32,8 @@ jobs:
           # quiet: true # optional: display only failed checks
           # soft_fail: true # optional: do not return an error code if there are failed checks
           framework: cloudformation # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
-          output_format: sarif # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-          output_file_path: reports/results.sarif # folder and name of results file
+          output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+          output_file_path: reports # folder and name of results file
           # download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
           # repo_root_for_plan_enrichment: example/ #optional: Directory containing the hcl code used to generate a given terraform plan file. Use together with `file`
           # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
@@ -44,3 +42,21 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
           # use_enforcement_rules: true # optional - use enforcement rule configs from the platform
+
+      # - name: Upload SARIF file
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     # Path to SARIF file relative to the root of the repository
+      #     sarif_file: results.sarif
+      #     # Optional category for the results
+      #     # Used to differentiate multiple results for one commit
+      #     category: checkov
+
+      - name: Checkov report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: Checkov            # Name of the check run which will be created
+          path: reports/results_junitxml.xml    # Path to test results
+          reporter: java-junit        # Format of test results
+          # only-summary: 'true'
