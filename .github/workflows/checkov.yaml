@@ -5,6 +5,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  checks: write
 
 jobs:
   checkov-job:
@@ -58,4 +59,4 @@ jobs:
           name: Checkov            # Name of the check run which will be created
           path: reports/results_junitxml.xml    # Path to test results
           reporter: java-junit        # Format of test results
-          only-summary: 'true'
+          # only-summary: 'true'
