@@ -41,3 +41,12 @@ jobs:
           # baseline: cloudformation/.checkov.baseline # optional: Path to a generated baseline file. Will only report results not in the baseline.
           container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
           # use_enforcement_rules: true # optional - use enforcement rule configs from the platform
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: results.sarif
+          # Optional category for the results
+          # Used to differentiate multiple results for one commit
+          category: checkov
