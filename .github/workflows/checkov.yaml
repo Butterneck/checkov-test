@@ -32,7 +32,7 @@ jobs:
           soft_fail: true # optional: do not return an error code if there are failed checks
           framework: cloudformation # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
           output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-          output_file_path: reports/results.xml # folder and name of results file
+          output_file_path: reports # folder and name of results file
           # download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
           # repo_root_for_plan_enrichment: example/ #optional: Directory containing the hcl code used to generate a given terraform plan file. Use together with `file`
           # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
@@ -51,9 +51,10 @@ jobs:
       #     # Used to differentiate multiple results for one commit
       #     category: checkov
 
-      - name: Upload Checkov result file
-        uses: actions/upload-artifact@v2  # upload test results
-        if: success() || failure()        # run this step even if previous step failed
+      - name: Checkov report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
         with:
-          name: checkov-results
-          path: results.xml
+          name: Checkov            # Name of the check run which will be created
+          path: reports/results_junitxml.xml    # Path to test results
+          # reporter: jest-junit        # Format of test results
