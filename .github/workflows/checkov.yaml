@@ -31,8 +31,8 @@ jobs:
           # quiet: true # optional: display only failed checks
           soft_fail: true # optional: do not return an error code if there are failed checks
           framework: cloudformation # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
-          output_format: sarif # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
-          output_file_path: reports/results.sarif # folder and name of results file
+          output_format: junitxml # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif
+          output_file_path: reports/results.xml # folder and name of results file
           # download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
           # repo_root_for_plan_enrichment: example/ #optional: Directory containing the hcl code used to generate a given terraform plan file. Use together with `file`
           # var_file: ./testdir/gocd.yaml # optional: variable files to load in addition to the default files. Currently only supported for source Terraform and Helm chart scans.
@@ -42,11 +42,18 @@ jobs:
           container_user: 1000 # optional: Define what UID and / or what GID to run the container under to prevent permission issues
           # use_enforcement_rules: true # optional - use enforcement rule configs from the platform
 
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
+      # - name: Upload SARIF file
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     # Path to SARIF file relative to the root of the repository
+      #     sarif_file: results.sarif
+      #     # Optional category for the results
+      #     # Used to differentiate multiple results for one commit
+      #     category: checkov
+
+      - name: Upload Checkov result file
+        uses: actions/upload-artifact@v2  # upload test results
+        if: success() || failure()        # run this step even if previous step failed
         with:
-          # Path to SARIF file relative to the root of the repository
-          sarif_file: results.sarif
-          # Optional category for the results
-          # Used to differentiate multiple results for one commit
-          category: checkov
+          name: checkov-results
+          path: results.xml
