@@ -18,6 +18,7 @@ jobs:
         with:
           cdk_subcommand: 'synth'
           working_dir: 'infra'
+          actions_comment: false
 
       - name: Run Checkov action
         id: checkov
